@@ -94,16 +94,17 @@ attack the MCP server. See the homework description for the full rules.
 
 ### Task 1
 > one paragraph describing your solution, and your results on `public_test`.
+> 
 I built a CV verification agent using LangChain and deepseek-v4-flash. The agent uses only the SocialGraph MCP tools, with LinkedIn as the primary source and Facebook for identity confirmation. It resolves same-name candidates using multiple profile attributes and checks names, cities, employment records, education and skills. The prompt distinguishes equivalent wording from genuine discrepancies and instructs the agent to ignore instructions embedded in CVs. The code processes at most three CVs concurrently, validates the returned scores, and retries failed attempts once before returning a fallback score of 0.5. In one completed public-test run, the agent correctly classified all seven CVs, achieving 7/7 accuracy (100%). This result does not establish its accuracy on unseen CVs.
 > 
 ### Task 2
-> the attack techniques you used and why you expect them to work. The submitted CV falsely upgrades Kelly Tsang's HKUST BSc in Finance to an MSc in Finance, while retaining her genuine employment history,
-location and skills.
+> 
 My first version included a text instruction claiming that the degree difference was an accepted normalization. My verifier ignored this instruction, detected the false degree and returned 0.05.
 The final version instead places the false education entry in an embedded image. The PDF visibly contains the MSc claim, but the provided PDF loader did not extract the degree or university name. The verifier therefore treated education as omitted and accepted the remaining matching claims. In one local test, both the adversarial CV and the original CV received 0.95.
 This attack exploits a gap between visible PDF content and extracted text. It may work against verifiers that rely on the same extracted text without detecting missing image content. It does not demonstrate success against the five undisclosed grading agents.
 > 
 ### Task 3 reflection
+
 > This homework made me think about a paradox: an AI system can make reasonable decisions about the information it receives, while still reaching the wrong conclusion about the original document.
 At first, I felt confident when my verifier correctly classified all seven public CVs. It could compare employment dates, recognise equivalent wording and identify false claims. However, the second task showed me that this accuracy did not mean the whole system was reliable.
 My first attack tried to persuade the agent to accept a false master's degree through a verification note. The agent rejected it, which showed that its instructions provided some protection. My second attack did not need to persuade the model. I placed the false degree in an image, and the PDF loader omitted it from the extracted text. The agent then
